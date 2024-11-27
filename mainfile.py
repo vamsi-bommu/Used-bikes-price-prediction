@@ -1,4 +1,3 @@
-
 # =============================================================================
 # PREDICTING PRICE OF USED Bikes
 # =============================================================================
@@ -109,21 +108,6 @@ new_data.to_csv(r"E:\Project\checking_data.csv",index = False)
 example.km_driven.isna().sum()
 example.describe()
 
-# =============================================================================
-# Here 
-# =============================================================================
-
-data1 = pd.read_csv(r"E:\Project\new_bike_data.csv")
-data1.info()
-
-#Analysing "km_driven" column
-data1.isna().sum()
-data1["km_driven"].dtypes
-np.unique(data1.km_driven)
-data1.km_driven = np.where(data1.km_driven.str.contains("Mileage"),np.nan,data1["km_driven"])
-data1.km_driven = np.where(data1.km_driven.str.contains("Yes  "),np.nan,data1.km_driven)
-data1.isna().sum()
-
 data1.dropna(subset = ["km_driven"],inplace = True)
 data1.km_driven.describe()
 
@@ -155,9 +139,6 @@ data2['city'].value_counts().index[0]
 data2['city'].fillna(data2.city.value_counts()[0],inplace = True)
 
 data2.to_csv(r'E:\Project\completed_data.csv')
-
-
-
 
 data3 = pd.read_csv(r"E:\Project\completed_data.csv",index_col=0)
 
@@ -238,14 +219,8 @@ data5 = data5[data5['owner'] != '60206']
 
 pd.crosstab(index = data5["owner"],columns = "count")
 
-
-
 data5.describe()
 data5.info()
-
-
-
-
 
 sns.distplot(data5['price'])
 # Checking the skewness of price - It is +ve skew
@@ -281,12 +256,10 @@ data6.info()
 # Copying data to another dataframe
 data7 = data6.copy()
 
-
 # correlating columns of numerical data
 numerical_data = data7.select_dtypes(exclude = [object])
 corr_matrix = numerical_data.corr()
 print(corr_matrix)
-
 
 data7.describe()
 # Setting numerical data to 3 decimal values
@@ -305,21 +278,6 @@ data7.info()
 pd.crosstab(index = data7.price,columns = data7.km_driven,normalize = True)
 sns.boxplot(x = data7.price)
 sns.boxplot(x = data7.km_driven)
-
-
-def get_iqr_values(df, column_name):
-    median = df[column_name].mean()
-    q1 = df[column_name].quantile(0.25)
-    q3 = df[column_name].quantile(0.75)
-    iqr = q3 - q1
-    max_quantile = q3 + (1.5 * iqr)
-    min_quantile = q1 - (1.5 * iqr)
-    return median, q1, q3, max_quantile, min_quantile
-
-def remove_outliers(df, column):
-    _, _, _, maximum, minimum = get_iqr_values(df, column)
-    df_out = df[(df[column] > minimum) & (df[column] < maximum)]
-    return df_out
 
 df_out = remove_outliers(data7, 'price')
 number_outliers = data7.shape[0] - df_out.shape[0]
@@ -342,29 +300,21 @@ df_out.info()
 
 df_out.to_csv(r"E:\Project\30-09-2023.csv")
 
-
-
-
-
 df_out = pd.read_csv(r"E:\Project\30-09-2023.csv")
 
 # =============================================================================
 # Model Building
 # =============================================================================
 
-# Importing libraries
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression,Lasso
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import mean_absolute_error,mean_squared_error,r2_score,explained_variance_score
-
 
 # Converting categorical variables into dummy variables
 
-
 df_out = pd.get_dummies(df_out,drop_first=True)
-
 
 # Seperating the input and output features
 
@@ -397,31 +347,6 @@ rmse = mean_squared_error(y_test, line_predictions,squared = False)
 print(rmse)
 r2 = r2_score(y_test,line_predictions)
 print("r-squared value:",r2)
-# =============================================================================
-# Decision Tree Regressor
-# =============================================================================
-
-# create decision tree regressor model
-decision_model = DecisionTreeRegressor()
-
-# Train the model by fitting model with training data
-decision_train_model = decision_model.fit(X_train,y_train)
-
-# Perform predictions using test data
-decision_predictions = decision_model.predict(X_test)
-
-# mean squared error - metric
-mse = mean_squared_error(y_test, decision_predictions)
-print(mse)
-
-# root mean squared error - metric
-rmse = mean_squared_error(y_test, decision_predictions,squared = False)
-print(rmse)
-
-# r2_score - metric
-decision_tree_r2 = r2_score(y_test,decision_predictions)
-print(decision_tree_r2)
-
 
 # =============================================================================
 # Random Forest Regressor
@@ -435,3 +360,21 @@ forest_train_model = forest_model.fit(X_train,y_train)
 
 # Perform predictions using test data
 forest_predictions = forest_train_model.predict(X_test)
+
+# =============================================================================
+# Random Forest Regressor
+# =============================================================================
+
+k_values = [2,3,4,5,6,7,8,9]
+
+for k in k_values:
+
+    KNN = KNeighborsRegressor(n_neighbors = k)
+
+    KNN.fit(X_train,y_train)
+
+    knn_predictions = KNN.predict(X_test)
+
+    knn_r2 = r2_score(y_test,knn_predictions)
+
+    print("R2 - score of KNN:",knn_r2)
