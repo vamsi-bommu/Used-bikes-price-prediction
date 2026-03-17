@@ -17,7 +17,7 @@ example_data = pd.read_csv(r"E:\Project\Used_Bikes.csv")
 # Copy dataframe
 example = example_data.copy()
 
-#Summarise the data
+#Data summary
 example.info()
 
 # =============================================================================
@@ -32,7 +32,7 @@ unique_prices = example.price.unique()
 
 print(unique_prices)
 
-#To get the sample idea on data
+#sample data
 example.price.sample(5)
 
 # Checking the datatype of price column
@@ -302,6 +302,7 @@ df_out.to_csv(r"E:\Project\30-09-2023.csv")
 
 df_out = pd.read_csv(r"E:\Project\30-09-2023.csv")
 
+
 # =============================================================================
 # Model Building
 # =============================================================================
@@ -329,6 +330,7 @@ prices.hist()
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2,random_state = 42)
 print(X_train.shape,X_test.shape,y_train.shape,y_test.shape)
 
+
 # =============================================================================
 # Linear Regression
 # =============================================================================
@@ -348,6 +350,7 @@ print(rmse)
 r2 = r2_score(y_test,line_predictions)
 print("r-squared value:",r2)
 
+
 # =============================================================================
 # Random Forest Regressor
 # =============================================================================
@@ -360,6 +363,7 @@ forest_train_model = forest_model.fit(X_train,y_train)
 
 # Perform predictions using test data
 forest_predictions = forest_train_model.predict(X_test)
+
 
 # =============================================================================
 # Random Forest Regressor
